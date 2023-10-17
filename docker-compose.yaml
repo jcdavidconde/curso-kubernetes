@@ -1,0 +1,66 @@
+version: "3.9"
+services:
+  db-usuarios:
+    container_name: db-usuarios
+    image: mysql:8
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: sasa
+      MYSQL_DATABASE: msvc_usuarios
+    volumes:
+      - data-usuarios:/var/lib/mysql
+    restart: always
+    networks:
+      - spring
+  db-cursos:
+    container_name: db-cursos
+    image: postgres:14-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_PASSWORD: sasa
+      POSTGRES_DB: msvc_cursos
+    volumes:
+      - data-cursos:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - spring
+  msvc-usuarios:
+    container_name: msvc-usuarios
+    image: jcdavidconde/msvc-usuarios
+    #build:
+    #  context: ./
+    #  dockerfile: ./msvc-usuarios/Dockerfile
+    #image: usuarios:latest
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./msvc-usuarios/.env
+    networks:
+      - spring
+    depends_on:
+      - db-usuarios
+  msvc-cursos:
+    container_name: msvc-cursos
+    image: jcdavidconde/msvc-cursos
+    #build:
+    #  context: ./
+    #  dockerfile: ./msvc-usuarios/Dockerfile
+    #image: cursos:latest
+    ports:
+      - "8002:8002"
+    env_file:
+      - ./msvc-cursos/.env
+    networks:
+      - spring
+    depends_on:
+      - db-cursos
+
+volumes:
+  data-usuarios:
+    name: data-usuarios
+  data-cursos:
+    name: data-cursos
+networks:
+  spring:
