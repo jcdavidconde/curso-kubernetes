@@ -1,0 +1,43 @@
+version: "3.9"
+services:
+  db-usuarios:
+    container_name: db-usuarios
+    image: mysql:8
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: sasa
+      MYSQL_DATABASE: msvc_usuarios
+    volumes:
+      - data-usuarios:/var/lib/mysql
+    restart: always
+    networks:
+      - spring
+  msvc-usuarios:
+    container_name: msvc-usuarios
+    image: jcdavidconde/msvc-usuarios
+    #build:
+    #  context: ./
+    #  dockerfile: ./msvc-usuarios/Dockerfile
+    #image: usuarios:latest
+    ports:
+      - "8001:8001"
+    #env_file:
+    #  - ./msvc-usuarios/.env
+    environment:
+      PORT: 8001
+      DB_HOST: db-usuarios:3306
+      DB_DATABASE: msvc_usuarios
+      DB_USERNAME: root
+      DB_PASSWORD: sasa
+      CURSOS_URL: ec2-52-201-237-100.compute-1.amazonaws.com:8002
+    networks:
+      - spring
+    depends_on:
+      - db-usuarios
+
+volumes:
+  data-usuarios:
+    name: data-usuarios
+networks:
+  spring:

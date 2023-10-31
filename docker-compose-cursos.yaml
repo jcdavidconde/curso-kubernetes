@@ -1,0 +1,43 @@
+version: "3.9"
+services:
+  db-cursos:
+    container_name: db-cursos
+    image: postgres:14-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_PASSWORD: sasa
+      POSTGRES_DB: msvc_cursos
+    volumes:
+      - data-cursos:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - spring
+  msvc-cursos:
+    container_name: msvc-cursos
+    image: jcdavidconde/msvc-cursos
+    #build:
+    #  context: ./
+    #  dockerfile: ./msvc-usuarios/Dockerfile
+    #image: cursos:latest
+    ports:
+      - "8002:8002"
+    #env_file:
+    #  - ./msvc-cursos/.env
+    environment:
+      PORT: 8002
+      DB_HOST: db-cursos:5432
+      DB_DATABASE: msvc_cursos
+      DB_USERNAME: postgres
+      DB_PASSWORD: sasa
+      USUARIOS_URL: ec2-50-19-174-71.compute-1.amazonaws.com:8001
+    networks:
+      - spring
+    depends_on:
+      - db-cursos
+
+volumes:
+  data-cursos:
+    name: data-cursos
+networks:
+  spring:
